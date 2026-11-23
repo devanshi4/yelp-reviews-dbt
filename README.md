@@ -6,6 +6,12 @@ An analytics engineering project in dbt and PostgreSQL. Python loads Yelp review
 
 > Part of my portfolio at **[devanshi4.github.io](https://devanshi4.github.io)**
 
+## Highlights
+
+- **Three dbt layers with one source of truth:** "positive review" is defined once, and every mart uses that definition.
+- **A score anyone can check:** the 0–100 product health score is a published formula, not a black box.
+- **Built to grow:** an incremental timeline model, plus tests on the fact tables' keys.
+
 ---
 
 ## The problem
