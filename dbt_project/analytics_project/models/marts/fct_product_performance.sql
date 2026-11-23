@@ -65,7 +65,7 @@ final as (
     select
         *,
         
-        -- Product health score (simple algorithm)
+        -- 0-100: rating 40%, positive share 30%, verified share 20%, helpful share 10%
         round(
             (avg_rating / 5.0 * 40) +
             (positive_percentage * 0.3) +

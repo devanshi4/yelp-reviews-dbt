@@ -1,184 +1,101 @@
-# 🎯 Yelp Reviews Analytics Pipeline - DBT Project
+# Yelp Reviews Analytics
 
-[![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/devanshi4/dbt-yelp-analytics-pipeline)
-[![DBT](https://img.shields.io/badge/DBT-Transformation-orange)](https://www.getdbt.com/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-blue)](https://www.postgresql.org/)
-[![Python](https://img.shields.io/badge/Python-3.9+-green)](https://www.python.org/)
+An analytics engineering project in dbt and PostgreSQL. Python loads Yelp reviews from Hugging Face, and dbt models them in three layers (staging, intermediate and marts) into business, reviewer and daily-trend tables, with tests and documented lineage.
 
-> 🚀 A production-grade analytics pipeline demonstrating modern data engineering practices with DBT, PostgreSQL, and Python.
+**Stack:** Python · PostgreSQL · dbt · Hugging Face Datasets
 
-## 🎥 Quick Demo
-
-<p align="center">
-  <img src="Lineage_Graph.png" width="800"/>
-</p>
-
-<p align="center">
-  <em>DBT data lineage showing the complete transformation pipeline</em>
-</p>
-
-A production-grade data transformation pipeline built with **DBT**, **PostgreSQL**, and **Python**. This project demonstrates end-to-end data engineering skills including data ingestion, transformation, testing, and documentation.
-
-## 📊 Project Overview
-
-This pipeline analyzes **2,000+ Yelp business reviews** to generate actionable insights about:
-- **Product Performance**: Sentiment analysis, rating trends, engagement metrics
-- **User Behavior**: Review patterns, credibility scoring, user segmentation
-- **Time Series Analysis**: Daily and monthly review trends
-
-## 🏗️ Architecture
-```
-HuggingFace Dataset → PostgreSQL (Raw) → DBT (Transform) → Analytics Tables
-```
-
-**Data Flow:**
-1. **Ingestion**: Python script loads Yelp reviews from HuggingFace
-2. **Staging**: DBT cleans and standardizes raw data
-3. **Intermediate**: DBT calculates review metrics and KPIs
-4. **Marts**: DBT creates business-ready analytics tables
-
-## 🛠️ Tech Stack
-
-- **Data Warehouse**: PostgreSQL
-- **Transformation**: DBT (Data Build Tool)
-- **Data Source**: HuggingFace Datasets API
-- **Languages**: SQL, Python
-- **Version Control**: Git/GitHub
-
-## 📁 Project Structure
-```
-analytics_project/
-├── models/
-│   ├── staging/          # Raw data cleaning & standardization
-│   │   ├── stg_reviews.sql
-│   │   └── _sources.yml
-│   ├── intermediate/     # Business logic & metrics
-│   │   └── int_review_metrics.sql
-│   └── marts/            # Final analytics tables
-│       ├── fct_product_performance.sql
-│       ├── fct_user_activity.sql
-│       └── dim_review_timeline.sql
-├── tests/                # Data quality tests
-└── dbt_project.yml       # DBT configuration
-```
-
-## 🚀 Getting Started
-
-### Prerequisites
-```bash
-# Install required packages
-pip install dbt-postgres datasets pandas sqlalchemy psycopg2-binary
-```
-
-### Setup
-
-1. **Clone the repository**
-```bash
-git clone https://github.com/devanshi4/dbt-yelp-analytics-pipeline.git
-cd dbt-analytics-project
-```
-
-2. **Configure PostgreSQL connection**
-   - Create database: `dbt_analytics`
-   - Update `~/.dbt/profiles.yml` with your credentials
-
-3. **Load data**
-```bash
-cd data_ingestion
-python load_data.py
-```
-
-4. **Run DBT pipeline**
-```bash
-cd ../dbt_project/analytics_project
-dbt run
-dbt test
-```
-
-## 📈 Key Models
-
-### 🏆 fct_product_performance
-Aggregated product metrics including:
-- Total reviews & unique reviewers
-- Average ratings & sentiment distribution
-- Verification rates
-- **Product Health Score** (0-100)
-
-### 👥 fct_user_activity
-User behavior analysis:
-- Review volume & frequency
-- Rating patterns
-- Credibility indicators
-- **Reviewer Quality Score**
-
-### 📅 dim_review_timeline
-Time-series data for trend analysis:
-- Daily review counts
-- Rolling averages
-- Sentiment trends over time
-
-## ✅ Data Quality
-
-Comprehensive testing suite includes:
-- **Not Null Tests**: Ensuring critical fields have values
-- **Unique Tests**: Preventing duplicate records
-- **Accepted Values**: Validating categorical data
-- **Referential Integrity**: Checking foreign key relationships
-
-Run tests: `dbt test`
-
-## 📚 Documentation
-
-Generate interactive documentation:
-```bash
-dbt docs generate
-dbt docs serve
-```
-
-View at: `http://localhost:8080`
-
-Features:
-- 📊 Interactive lineage graph
-- 📖 Model documentation
-- 🧪 Test results
-- 📈 Column-level details
-
-## 🎓 Key Features Demonstrated
-
-✅ **Modern Data Stack**: DBT + PostgreSQL  
-✅ **Data Modeling**: Staging → Intermediate → Marts architecture  
-✅ **SQL Skills**: CTEs, window functions, aggregations  
-✅ **Data Quality**: Automated testing framework  
-✅ **Incremental Models**: Efficient data processing  
-✅ **Documentation**: Auto-generated docs with lineage  
-✅ **Version Control**: Git best practices  
-
-## 📊 Sample Insights
-
-- **Average Product Rating**: 4.2/5.0
-- **Review Sentiment**: 65% positive, 20% neutral, 15% negative
-- **Top Products**: Ranked by health score
-- **Power Users**: Identified by quality score
-
-## 🔄 Future Enhancements
-
-- [ ] Add dbt snapshots for historical tracking
-- [ ] Implement custom data quality macros
-- [ ] Add CI/CD with GitHub Actions
-- [ ] Create dashboard with Tableau/Power BI
-- [ ] Add more data sources
-
-## 👤 Author
-
-**Your Name**
-- LinkedIn: [https://www.linkedin.com/in/devanshi4/]
-- GitHub: [@devanshi4]
-- Portfolio: [https://my-portfolio-xjgdxcqjrhtvxbuaombpda.streamlit.app/#ai-sql-assistant]
-
-## 📝 License
-
-This project is open source and available under the MIT License.
+> Part of my portfolio at **[devanshi4.github.io](https://devanshi4.github.io)**
 
 ---
 
-⭐ **If you found this project helpful, please give it a star!**
+## The problem
+
+Raw review data is one long table of text and star ratings. People who use it ask different questions: which businesses are doing well, which reviewers can be trusted, and how sentiment changes over time. Each answer needs its own table, built from the same cleaned data, so the numbers agree.
+
+## How it works
+
+```mermaid
+flowchart LR
+    A[Hugging Face<br/>yelp_review_full] -->|load_data.py| B[(Postgres<br/>raw_reviews)]
+    B --> C[stg_reviews<br/>view]
+    C --> D[int_review_metrics<br/>ephemeral]
+    D --> E[fct_product_performance]
+    D --> F[fct_user_activity]
+    D --> G[dim_review_timeline<br/>incremental]
+```
+
+![dbt lineage graph](Lineage_Graph.png)
+
+1. **Load.** `load_data.py` reads 2,000 Yelp reviews and writes them to Postgres as `raw_reviews`.
+2. **Staging.** `stg_reviews` renames and types columns, converts timestamps, and labels sentiment and review length.
+3. **Intermediate.** `int_review_metrics` adds per-review flags (positive, negative, verified, has helpful votes) once, so every mart uses the same definitions.
+4. **Marts.** Three tables answer the business, reviewer and trend questions.
+
+## Design decisions
+
+- **Three layers with clear jobs.** Staging cleans, intermediate defines shared logic, marts answer questions. A change to "what counts as a positive review" happens in one place.
+- **Materialization matched to use.** Staging is a view so it's always current. Intermediate is ephemeral (compiled into the marts) because nothing queries it directly. Marts are tables for fast reads.
+- **Incremental timeline.** `dim_review_timeline` only processes days newer than what it already holds.
+- **Simple, explainable scores.** The product health score is 40% rating, 30% positive share, 20% verified share and 10% helpful share, on a 0–100 scale. Anyone reading the dashboard can see how a business got its score.
+- **Honest about the data.** The public Yelp dataset has only a star rating and the review text. Business IDs, user IDs, dates, verification and helpful votes are simulated in the loader with a fixed seed, so the models have realistic many-reviews-per-business data to work with.
+
+## Data model
+
+| Model | Grain | What it answers |
+|---|---|---|
+| `fct_product_performance` | one row per business | Review volume, rating, sentiment mix, verification rate, health score |
+| `fct_user_activity` | one row per reviewer | Reviewing habits, user type, reviewer quality score |
+| `dim_review_timeline` | one row per business per day | Daily review counts, average rating, sentiment and engagement |
+
+Tests check that IDs are not null and unique in the marts, and that ratings and sentiment only take expected values.
+
+## Run it locally
+
+You need Python 3.9+ and a local PostgreSQL database called `dbt_analytics`.
+
+1. Install dependencies:
+
+   ```bash
+   pip install dbt-postgres datasets pandas sqlalchemy psycopg2-binary
+   ```
+
+2. Set `DB_USER` and `DB_PASSWORD` (plus `DB_HOST`, `DB_PORT`, `DB_NAME` if they differ from the defaults), then load the data:
+
+   ```bash
+   python data_ingestion/load_data.py
+   ```
+
+3. Add an `analytics_project` profile to `~/.dbt/profiles.yml` pointing at the same database, then build and test the models:
+
+   ```bash
+   cd dbt_project/analytics_project && dbt run && dbt test
+   ```
+
+4. Browse the docs and lineage graph:
+
+   ```bash
+   dbt docs generate && dbt docs serve
+   ```
+
+## Project structure
+
+```
+├── data_ingestion/load_data.py     # Hugging Face -> Postgres raw_reviews
+├── dbt_project/analytics_project/
+│   ├── models/staging/             # stg_reviews + source and tests
+│   ├── models/intermediate/        # int_review_metrics
+│   ├── models/marts/               # facts, timeline + tests
+│   └── dbt_project.yml
+└── Lineage_Graph.png
+```
+
+## Status and next steps
+
+- Swap in the full Yelp Open Dataset, which has real business and user IDs, in place of the simulated fields.
+- Add `relationships` tests between the marts and staging.
+- Run `dbt build` in GitHub Actions on every pull request.
+- Put a small dashboard on top of `fct_product_performance`.
+
+---
+
+Built by **Devanshi Pandya** · [Portfolio](https://devanshi4.github.io) · [LinkedIn](https://www.linkedin.com/in/devanshi4/)
