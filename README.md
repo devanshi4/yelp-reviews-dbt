@@ -65,13 +65,17 @@ You need Python 3.9+ and a local PostgreSQL database called `dbt_analytics`.
    pip install dbt-postgres datasets pandas sqlalchemy psycopg2-binary
    ```
 
-2. Set `DB_USER` and `DB_PASSWORD` (plus `DB_HOST`, `DB_PORT`, `DB_NAME` if they differ from the defaults), then load the data:
+2. Copy `.env.example` to `.env`, fill in the database settings and export them, then load the data:
+
+   ```bash
+   set -a; . ./.env; set +a
+   ```
 
    ```bash
    python data_ingestion/load_data.py
    ```
 
-3. Add an `analytics_project` profile to `~/.dbt/profiles.yml` pointing at the same database, then build and test the models:
+3. Copy `dbt_project/analytics_project/profiles.example.yml` to `~/.dbt/profiles.yml` (it reads the same variables), then build and test the models:
 
    ```bash
    cd dbt_project/analytics_project && dbt run && dbt test
@@ -92,6 +96,7 @@ You need Python 3.9+ and a local PostgreSQL database called `dbt_analytics`.
 │   ├── models/intermediate/        # int_review_metrics
 │   ├── models/marts/               # facts, timeline + tests
 │   └── dbt_project.yml
+├── .github/workflows/dbt-ci.yml    # dbt parse on every push and pull request
 └── Lineage_Graph.png
 ```
 
@@ -99,7 +104,7 @@ You need Python 3.9+ and a local PostgreSQL database called `dbt_analytics`.
 
 - Swap in the full Yelp Open Dataset, which has real business and user IDs, in place of the simulated fields.
 - Add `relationships` tests between the marts and staging.
-- Run `dbt build` in GitHub Actions on every pull request.
+- Extend CI from `dbt parse` to a full `dbt build` against a Postgres service container.
 - Put a small dashboard on top of `fct_product_performance`.
 
 ---
